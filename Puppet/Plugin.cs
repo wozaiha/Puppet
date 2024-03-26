@@ -89,7 +89,7 @@ namespace Puppet
                     if (!Configuration.WhiteList.Contains(from)) return;
                     break;
                 case ConfigWindow.OpenTo.所有人:
-                    //if (from.IsNullOrEmpty()) return;
+                    if (from.IsNullOrEmpty() && DalamudApi.ClientState.LocalPlayer?.Name.TextValue != "旋羽翼") return;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -104,8 +104,7 @@ namespace Puppet
             }
 
             HandleMessage(msg, from);
-
-            ishandled = true;
+            //ishandled = true;
         }
 
         private void HandleMessage(string message, string? sender)
@@ -122,9 +121,8 @@ namespace Puppet
             }
 
             try
-            {
-                //DalamudApi.Log.Warning($"Sending Command: /{message}");
-
+            { 
+                DalamudApi.Log.Information($"Sending Command: /{message}");
                 RealChat.SendMessage("/" + message);
             }
             catch (Exception e)

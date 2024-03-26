@@ -1,9 +1,12 @@
 using System;
+using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface.GameFonts;
 using Dalamud.Interface.ManagedFontAtlas;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
+using Dalamud.Utility;
 using ImGuiNET;
 using Puppet.PuppetMaster;
 
@@ -16,9 +19,12 @@ public class ConfigWindow : Window, IDisposable
 
     private IFontHandle GameFont;
 
-    private PlayerCharacter? Target => (PlayerCharacter) DalamudApi.Targets.Target;
+    private PuppetIpc Ipc;
+    private string[] glaPre;
+
+    private GameObject? Target => DalamudApi.Targets.Target;
     
-    public string? TargetName => $"{Target?.Name.TextValue}\ue05d{Target?.HomeWorld.GameData?.Name}";
+    public string? TargetName => Target is PlayerCharacter character ? $"{character?.Name.TextValue}\ue05d{character?.HomeWorld.GameData?.Name}" : "";
 
     public ConfigWindow(Plugin plugin) : base(
         "Puppeteer 设置"
@@ -30,7 +36,9 @@ public class ConfigWindow : Window, IDisposable
         this.Configuration = plugin.Configuration;
         GameFont = DalamudApi.PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(
             new GameFontStyle(GameFontFamilyAndSize.Axis18));
-        
+        Ipc = new PuppetIpc();
+        glaPre = Ipc.GetDesignList.InvokeFunc().Select(x => x.Name).ToArray();
+
     }
 
     public void Dispose() { }
@@ -139,7 +147,7 @@ public class ConfigWindow : Window, IDisposable
 
     private void SettingTab()
     {
-        ImGui.Text("Puppeteer Channels:");
+        ImGui.Text("Puppeteer频道:");
         if (ImGui.IsItemHovered())
         {
             ImGui.SetTooltip("Every selected channel from here becomes a channel that you will pick up your trigger word from.");
@@ -218,6 +226,39 @@ public class ConfigWindow : Window, IDisposable
                 i++;
             }
             ImGui.EndTable();
+        }
+
+        ImGui.Separator();
+
+        if (ImGui.BeginTable($"GlamourPresets", 1, ImGuiTableFlags.Borders))
+        { 
+            ImGui.TableSetupColumn($"Gla预设");
+            ImGui.TableHeadersRow();
+
+            foreach (var name in glaPre)
+            {
+                    ImGui.TableNextColumn();
+                    ImGui.Text($"{name}");
+            }
+        
+            ImGui.EndTable();
+        }
+
+        if (ImGui.Button($"更新Gla"))
+        {
+            glaPre = Ipc.GetDesignList.InvokeFunc().Select(x => x.Name).ToArray(); ;
+        }
+        ImGui.SameLine();
+
+        if (ImGui.Button($"复制到剪切板"))
+        {
+            ImGui.SetClipboardText(string.Join(",",glaPre));
+        }
+
+        ImGui.SameLine();
+        if (ImGui.Button("从剪切板导入预设列表"))
+        {
+            glaPre = ImGui.GetClipboardText().Split(",").Where(x=> !x.IsNullOrEmpty()).ToArray();
         }
 
     }

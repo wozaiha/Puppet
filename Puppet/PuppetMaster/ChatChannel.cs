@@ -38,7 +38,7 @@ public static class ChatChannel
         悄悄话 = 17,
 
         [EnumOrder(2)]
-        说 = 1,
+        说话 = 1,
 
         [EnumOrder(3)]
         小队 = 2,
@@ -131,7 +131,7 @@ public static class ChatChannel
     public static string[] GetChannelAlias(this ChatChannels channel) => channel switch
     {
         ChatChannels.悄悄话 => new[] { "/t", "/tell"},
-        ChatChannels.说 => new[] { "/s", "/say" },
+        ChatChannels.说话 => new[] { "/s", "/say" },
         ChatChannels.小队 => new[] { "/p", "/party" },
         ChatChannels.团队 => new[] { "/a", "/alliance" },
         ChatChannels.呼喊 => new[] { "/y", "/yell" },
@@ -180,7 +180,7 @@ public static class ChatChannel
         {
             XivChatType.TellIncoming    => ChatChannels.悄悄话,
             XivChatType.TellOutgoing    => ChatChannels.悄悄话,
-            XivChatType.Say             => ChatChannels.说,
+            XivChatType.Say             => ChatChannels.说话,
             XivChatType.Party           => ChatChannels.小队,
             XivChatType.Alliance        => ChatChannels.团队,
             XivChatType.Yell            => ChatChannels.呼喊,
