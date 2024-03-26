@@ -3,15 +3,22 @@ using System.Text.RegularExpressions;
 using Dalamud.Utility;
 
 namespace Puppet.PuppetMaster;
+
 public enum AliasType
 {
-    普通, Gla预设, Gla单件, Customize, Moodles效果, Moodles预设
+    普通,
+    Gla预设,
+    Gla单件,
+    Customize,
+    Moodles效果,
+    Moodles预设
 }
+
 public class Alias
 {
     public bool Enabled = false;
-    public string From = String.Empty;
-    public string To = String.Empty;
+    public string From = string.Empty;
+    public string To = string.Empty;
     public AliasType Type = AliasType.普通;
     public bool EnableAdv = false;
 
@@ -64,6 +71,4 @@ public class Alias
         var result = Regex.Replace(text, from, to);
         return result;
     }
-
-
 }

@@ -4,35 +4,33 @@ using Dalamud.Configuration;
 using Dalamud.Plugin;
 using Puppet.PuppetMaster;
 
-namespace Puppet
+namespace Puppet;
+
+[Serializable]
+public class Configuration : IPluginConfiguration
 {
-    [Serializable]
-    public class Configuration : IPluginConfiguration
+    // the below exist just to make saving less cumbersome
+    [NonSerialized]
+    private DalamudPluginInterface? PluginInterface;
+
+    public string Trigger = string.Empty;
+
+    public List<ChatChannel.ChatChannels?> ChannelsPuppeteer { get; set; } = [];
+
+    public List<string> WhiteList { get; set; } = [];
+
+    public List<Alias> Aliases { get; set; } = [];
+
+    public int Target { get; set; } = 0;
+    public int Version { get; set; } = 0;
+
+    public void Initialize(DalamudPluginInterface pluginInterface)
     {
-        public int Version { get; set; } = 0;
+        PluginInterface = pluginInterface;
+    }
 
-        public List<ChatChannel.ChatChannels?> ChannelsPuppeteer { get; set; } = [];
-
-        public List<string> WhiteList { get; set; } = [];
-
-        public string Trigger = string.Empty;
-
-        public List<Alias> Aliases { get; set; } = [];
-
-        public int Target { get; set; } = 0;
-
-        // the below exist just to make saving less cumbersome
-        [NonSerialized]
-        private DalamudPluginInterface? PluginInterface;
-
-        public void Initialize(DalamudPluginInterface pluginInterface)
-        {
-            this.PluginInterface = pluginInterface;
-        }
-
-        public void Save()
-        {
-            this.PluginInterface!.SavePluginConfig(this);
-        }
+    public void Save()
+    {
+        PluginInterface!.SavePluginConfig(this);
     }
 }

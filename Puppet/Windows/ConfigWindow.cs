@@ -24,35 +24,34 @@ public class ConfigWindow : Window, IDisposable
     private List<string> glaPre;
 
     private GameObject? Target => DalamudApi.Targets.Target;
-    
-    public string? TargetName => Target is PlayerCharacter character ? $"{character?.Name.TextValue}\ue05d{character?.HomeWorld.GameData?.Name}" : "";
+
+    public string? TargetName => Target is PlayerCharacter character
+                                     ? $"{character?.Name.TextValue}\ue05d{character?.HomeWorld.GameData?.Name}"
+                                     : "";
 
     public ConfigWindow(Plugin plugin) : base(
         "Puppeteer 设置"
-        )
+    )
     {
         //this.Size = new Vector2(232, 75);
         //this.SizeCondition = ImGuiCond.Always;
 
-        this.Configuration = plugin.Configuration;
+        Configuration = plugin.Configuration;
         GameFont = DalamudApi.PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(
             new GameFontStyle(GameFontFamilyAndSize.Axis18));
         Ipc = new PuppetIpc();
         glaPre = [];
-
     }
 
     public void Dispose() { }
 
-    private string[] AliasHeaders = { "启用", "原内容", "替换为", "类型","删除" };
+    private string[] AliasHeaders = {"启用", "原内容", "替换为", "类型", "删除"};
+
     private void AliasTab()
     {
-        if (ImGui.BeginTable("AliasList", AliasHeaders.Length,ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders ))
+        if (ImGui.BeginTable("AliasList", AliasHeaders.Length, ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders))
         {
-            foreach (var header in AliasHeaders)
-            {
-                ImGui.TableSetupColumn(header);
-            }
+            foreach (var header in AliasHeaders) ImGui.TableSetupColumn(header);
             ImGui.TableHeadersRow();
 
             var changed = false;
@@ -65,7 +64,7 @@ public class ConfigWindow : Window, IDisposable
                 ImGui.TableNextColumn();
                 var width = ImGui.GetColumnWidth();
                 ImGui.SetNextItemWidth(width);
-                changed |= ImGui.InputText($"##From{i}",ref Configuration.Aliases[i].From, 100);
+                changed |= ImGui.InputText($"##From{i}", ref Configuration.Aliases[i].From, 100);
 
                 ImGui.TableNextColumn();
                 switch (alias.Type)
@@ -74,82 +73,55 @@ public class ConfigWindow : Window, IDisposable
                         width = ImGui.GetColumnWidth();
                         ImGui.SetNextItemWidth(width);
                         changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"支持正则");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"支持正则");
                         break;
                     case AliasType.Gla预设:
                         width = ImGui.GetColumnWidth();
                         ImGui.SetNextItemWidth(width);
                         changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"请填入Gla预设名,留空则对方可自主填写预设名为你替换");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"请填入Gla预设名,留空则对方可自主填写预设名为你替换");
                         break;
                     case AliasType.Gla单件:
                         width = ImGui.GetColumnWidth();
                         ImGui.SetNextItemWidth(width);
                         changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"请填入要更换的装备名,留空则对方可自主填写装备名为你替换");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"请填入要更换的装备名,留空则对方可自主填写装备名为你替换");
                         break;
                     case AliasType.Customize:
                         width = ImGui.GetColumnWidth();
                         changed |= ImGui.Checkbox($"##EnableAdv{i}", ref Configuration.Aliases[i].EnableAdv);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效");
                         ImGui.SameLine();
                         ImGui.SetNextItemWidth(width - 30f);
                         changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 50);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效");
                         break;
                     case AliasType.Moodles效果:
                         width = ImGui.GetColumnWidth();
                         changed |= ImGui.Checkbox($"##EnableAdv{i}", ref Configuration.Aliases[i].EnableAdv);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"勾选添加效果,不勾选移除效果,效果名留空该项不生效");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选添加效果,不勾选移除效果,效果名留空该项不生效");
                         ImGui.SameLine();
                         ImGui.SetNextItemWidth(width - 30f);
                         changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 50);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"勾选启用效果,不勾选禁用效果,效果名留空该项不生效\n须填写GUID或完整效果路径");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用效果,不勾选禁用效果,效果名留空该项不生效\n须填写GUID或完整效果路径");
                         break;
                     case AliasType.Moodles预设:
                         width = ImGui.GetColumnWidth();
                         changed |= ImGui.Checkbox($"##EnableAdv{i}", ref Configuration.Aliases[i].EnableAdv);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"勾选添加预设,不勾选移除预设,预设名留空该项不生效");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选添加预设,不勾选移除预设,预设名留空该项不生效");
                         ImGui.SameLine();
                         ImGui.SetNextItemWidth(width - 30f);
                         changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 50);
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效\n须填写GUID或完整预设路径");
-                        }
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效\n须填写GUID或完整预设路径");
                         break;
-
                 }
 
                 ImGui.TableNextColumn();
                 width = ImGui.GetColumnWidth();
                 ImGui.SetNextItemWidth(width);
                 var selected = (int)Configuration.Aliases[i].Type;
-                if (ImGui.Combo($"##Type{i}", ref selected, Enum.GetNames(typeof(AliasType)), Enum.GetNames(typeof(AliasType)).Length))
+                if (ImGui.Combo($"##Type{i}", ref selected, Enum.GetNames(typeof(AliasType)),
+                                Enum.GetNames(typeof(AliasType)).Length))
                 {
                     Configuration.Aliases[i].Type = (AliasType)selected;
                     changed = true;
@@ -164,10 +136,8 @@ public class ConfigWindow : Window, IDisposable
                     Configuration.Aliases.RemoveAt(i);
                     break;
                 }
-                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-                {
-                    ImGui.SetTooltip($"按住Ctrl+点击删除");
-                }
+
+                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) ImGui.SetTooltip($"按住Ctrl+点击删除");
                 if (!ImGui.GetIO().KeyCtrl) ImGui.EndDisabled();
                 i++;
             }
@@ -178,19 +148,18 @@ public class ConfigWindow : Window, IDisposable
                 changed = true;
                 Configuration.Aliases.Add(new Alias());
             }
-            
+
             ImGui.EndTable();
             if (changed) Configuration.Save();
-
         }
     }
 
     public enum OpenTo
     {
-        仅目标,白名单,所有人
+        仅目标,
+        白名单,
+        所有人
     }
-
-    
 
     private void PuppeteerTab()
     {
@@ -198,16 +167,13 @@ public class ConfigWindow : Window, IDisposable
         {
             ImGui.Text("触发词:");
             ImGui.SameLine();
-            if (ImGui.InputText("##trigger", ref Configuration.Trigger, 64))
-            {
-                Configuration.Save();
-            }
+            if (ImGui.InputText("##trigger", ref Configuration.Trigger, 64)) Configuration.Save();
             ImGui.Separator();
         }
 
         ImGui.Text("权限设置:");
         var current = Configuration.Target;
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             ImGui.SameLine();
             if (ImGui.RadioButton($"{(OpenTo)i}", ref current, i))
@@ -216,6 +182,7 @@ public class ConfigWindow : Window, IDisposable
                 Configuration.Save();
             }
         }
+
         ImGui.Separator();
     }
 
@@ -223,11 +190,10 @@ public class ConfigWindow : Window, IDisposable
     {
         ImGui.Text("Puppeteer频道:");
         if (ImGui.IsItemHovered())
-        {
-            ImGui.SetTooltip("Every selected channel from here becomes a channel that you will pick up your trigger word from.");
-        }
+            ImGui.SetTooltip(
+                "Every selected channel from here becomes a channel that you will pick up your trigger word from.");
         var j = 0;
-        ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2 * ImGuiHelpers.GlobalScale);
+        ImGui.SetCursorPosY(ImGui.GetCursorPosY() - (2 * ImGuiHelpers.GlobalScale));
         foreach (var f in ChatChannel.GetOrderedChannels())
         {
             // See if it is already enabled by default
@@ -238,6 +204,7 @@ public class ConfigWindow : Window, IDisposable
                 ImGui.NewLine();
                 //i = 0;
             }
+
             // Move to the next row if it is 通讯贝1 or 跨服通讯贝S1
             if (f is ChatChannel.ChatChannels.通讯贝1 or ChatChannel.ChatChannels.跨服通讯贝1)
                 ImGui.Separator();
@@ -253,7 +220,6 @@ public class ConfigWindow : Window, IDisposable
             ImGui.SameLine();
             j++;
         }
-        
     }
 
     private void WhiteListTab()
@@ -269,20 +235,19 @@ public class ConfigWindow : Window, IDisposable
         {
             ImGui.InputText($"##{target}", ref target, (uint)target.Length, ImGuiInputTextFlags.ReadOnly);
         }
+
         ImGui.SameLine();
         if (ImGui.Button("添加") && target.Length > 1)
         {
             Configuration.WhiteList.Add(target);
             Configuration.Save();
         }
+
         ImGui.Separator();
 
         if (ImGui.BeginTable($"WhiteListPlayer", 2, ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders))
         {
-            foreach (var s in new string[]{"角色名","操作"})
-            {
-                ImGui.TableSetupColumn(s);
-            }
+            foreach (var s in new string[] {"角色名", "操作"}) ImGui.TableSetupColumn(s);
             ImGui.TableHeadersRow();
 
             var i = 0;
@@ -299,13 +264,14 @@ public class ConfigWindow : Window, IDisposable
 
                 i++;
             }
+
             ImGui.EndTable();
         }
 
         ImGui.Separator();
 
         if (ImGui.BeginTable($"GlamourPresets", 2, ImGuiTableFlags.Borders))
-        { 
+        {
             ImGui.TableSetupColumn($"Gla预设");
             ImGui.TableSetupColumn("操作");
             ImGui.TableHeadersRow();
@@ -320,62 +286,58 @@ public class ConfigWindow : Window, IDisposable
                     glaPre.RemoveAt(i);
                     break;
                 }
+
                 i++;
             }
-        
+
             ImGui.EndTable();
         }
 
         if (ImGui.Button($"更新Gla"))
         {
-            glaPre = Ipc.GetDesignList.InvokeFunc().Select(x => x.Name).ToList(); ;
+            glaPre = Ipc.GetDesignList.InvokeFunc().Select(x => x.Name).ToList();
+            ;
         }
+
         ImGui.SameLine();
 
-        if (ImGui.Button($"复制到剪切板"))
-        {
-            ImGui.SetClipboardText(string.Join(",",glaPre));
-        }
+        if (ImGui.Button($"导出到剪切板")) ImGui.SetClipboardText(string.Join(",", glaPre));
 
         ImGui.SameLine();
         if (ImGui.Button("从剪切板导入预设列表"))
-        {
-            glaPre = ImGui.GetClipboardText().Split(",").Where(x=> !x.IsNullOrEmpty()).ToList();
-        }
-
+            glaPre = ImGui.GetClipboardText().Split(",").Where(x => !x.IsNullOrEmpty()).ToList();
     }
-
 
 
     public override void Draw()
     {
-            if (ImGui.BeginTabBar("All Tabs"))
+        if (ImGui.BeginTabBar("All Tabs"))
+        {
+            if (ImGui.BeginTabItem("Puppeteer"))
             {
-                if (ImGui.BeginTabItem("Puppeteer"))
-                {
-                    PuppeteerTab();
-                    ImGui.EndTabItem();
-                }
-
-                if (ImGui.BeginTabItem("转义"))
-                {
-                    AliasTab();
-                    ImGui.EndTabItem();
-                }
-
-                if (ImGui.BeginTabItem("白名单"))
-                {
-                    WhiteListTab();
-                    ImGui.EndTabItem();
-                }
-
-                if (ImGui.BeginTabItem("设置"))
-                {
-                    SettingTab();
-                    ImGui.EndTabItem();
-                }
-                ImGui.EndTabBar();
+                PuppeteerTab();
+                ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("转义"))
+            {
+                AliasTab();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("白名单"))
+            {
+                WhiteListTab();
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("设置"))
+            {
+                SettingTab();
+                ImGui.EndTabItem();
+            }
+
+            ImGui.EndTabBar();
+        }
     }
 }
