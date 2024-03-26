@@ -1,11 +1,16 @@
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.InteropServices.Marshalling;
+using Dalamud.Game.ClientState.Objects.Enums;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface.GameFonts;
 using Dalamud.Interface;
 using Dalamud.Interface.ManagedFontAtlas;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
+using Lumina.Excel.GeneratedSheets;
 using Puppet.PuppetMaster;
 
 
@@ -17,12 +22,13 @@ public class ConfigWindow : Window, IDisposable
 
     private IFontHandle GameFont;
 
+    private PlayerCharacter? Target => (PlayerCharacter) DalamudApi.Targets.Target;
+    
+    public string? TargetName => $"{Target?.Name.TextValue}\ue05d{Target?.HomeWorld.GameData?.Name}";
+
     public ConfigWindow(Plugin plugin) : base(
-        "Puppeteer 设置",
-        //ImGuiWindowFlags.AlwaysAutoResize | 
-        ImGuiWindowFlags.NoCollapse | 
-        ImGuiWindowFlags.NoScrollbar |
-        ImGuiWindowFlags.NoScrollWithMouse)
+        "Puppeteer 设置"
+        )
     {
         //this.Size = new Vector2(232, 75);
         //this.SizeCondition = ImGuiCond.Always;
@@ -30,15 +36,86 @@ public class ConfigWindow : Window, IDisposable
         this.Configuration = plugin.Configuration;
         GameFont = DalamudApi.PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(
             new GameFontStyle(GameFontFamilyAndSize.Axis18));
+        
     }
 
     public void Dispose() { }
 
+    private string[] AliasHeaders = { "启用", "原内容", "替换为", "类型","删除" };
     private void AliasTab()
     {
-        
+        if (ImGui.BeginTable("AliasList", 5,ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders ))
+        {
+            foreach (var header in AliasHeaders)
+            {
+                ImGui.TableSetupColumn(header);
+            }
+            ImGui.TableHeadersRow();
+
+            var changed = false;
+            var i = 0;
+            foreach (var alias in Configuration.Aliases)
+            {
+                ImGui.TableNextColumn();
+                changed |= ImGui.Checkbox($"##Enabled{i}", ref Configuration.Aliases[i].Enabled);
+                ImGui.TableNextColumn();
+                var width = ImGui.GetColumnWidth();
+                ImGui.SetNextItemWidth(width);
+                changed |= ImGui.InputText($"##From{i}",ref Configuration.Aliases[i].From, 100);
+                ImGui.TableNextColumn();
+                if (alias.Type == AliasType.GlamourerApply)
+                {
+                    ImGui.BeginDisabled();
+                    ImGui.Text($"Glamourer切换预设");
+                    ImGui.EndDisabled();
+                }
+                else
+                {
+                    width = ImGui.GetColumnWidth();
+                    ImGui.SetNextItemWidth(width);
+                    changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
+                }
+                ImGui.TableNextColumn();
+                width = ImGui.GetColumnWidth();
+                ImGui.SetNextItemWidth(width);
+                var selected = (int)Configuration.Aliases[i].Type;
+                if (ImGui.Combo($"##Type{i}", ref selected, new string[2] {"普通", "Gla穿衣"}, 2))
+                {
+                    Configuration.Aliases[i].Type = (AliasType)selected;
+                    changed = true;
+                }
+
+                ImGui.TableNextColumn();
+                if (!ImGui.GetIO().KeyCtrl) ImGui.BeginDisabled();
+                if (ImGui.Button($"删除##{i}"))
+                {
+                    changed = true;
+                    Configuration.Aliases.RemoveAt(i);
+                    break;
+                }
+                if (!ImGui.GetIO().KeyCtrl) ImGui.EndDisabled();
+                i++;
+            }
+            ImGui.TableNextColumn();
+            if (ImGui.Button($"添加##AddAlias"))
+            {
+                changed = true;
+                Configuration.Aliases.Add(new Alias());
+            }
+            
+
+            ImGui.EndTable();
+            if (changed) Configuration.Save();
+
+        }
     }
 
+    public enum WhiteList
+    {
+        仅目标,白名单,白名单及好友,所有人
+    }
+
+    
 
     private void PuppeteerTab()
     {
@@ -50,7 +127,21 @@ public class ConfigWindow : Window, IDisposable
             {
                 Configuration.Save();
             }
+            ImGui.Separator();
         }
+
+        ImGui.Text("权限设置:");
+        var current = Configuration.Target;
+        for (int i = 0; i < 4; i++)
+        {
+            ImGui.SameLine();
+            if (ImGui.RadioButton($"{(WhiteList)i}", ref current, i))
+            {
+                Configuration.Target = current;
+                Configuration.Save();
+            }
+        }
+        ImGui.Separator();
     }
 
     private void SettingTab()
@@ -58,8 +149,7 @@ public class ConfigWindow : Window, IDisposable
         ImGui.Text("Puppeteer Channels:");
         if (ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip("Every selected channel from here becomes a channel that you will pick up your trigger word from.\n" +
-                             "The Global Puppeteer trigger works in all channels, and cannot be configured.");
+            ImGui.SetTooltip("Every selected channel from here becomes a channel that you will pick up your trigger word from.");
         }
         var j = 0;
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() - 2 * ImGuiHelpers.GlobalScale);
@@ -73,8 +163,8 @@ public class ConfigWindow : Window, IDisposable
                 ImGui.NewLine();
                 //i = 0;
             }
-            // Move to the next row if it is LS1 or CWLS1
-            if (f is ChatChannel.ChatChannels.LS1 or ChatChannel.ChatChannels.CWL1)
+            // Move to the next row if it is 通讯贝1 or 跨服通讯贝S1
+            if (f is ChatChannel.ChatChannels.通讯贝1 or ChatChannel.ChatChannels.跨服通讯贝1)
                 ImGui.Separator();
 
             if (ImGui.Checkbox($"{f}##{f}_puppeteer", ref enabledPuppet))
@@ -88,6 +178,7 @@ public class ConfigWindow : Window, IDisposable
             ImGui.SameLine();
             j++;
         }
+        
     }
 
     public override void Draw()
@@ -113,7 +204,6 @@ public class ConfigWindow : Window, IDisposable
                 }
                 ImGui.EndTabBar();
             }
-            ImGui.End();
 
     }
 }

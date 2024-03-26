@@ -35,16 +35,16 @@ public static class ChatChannel
         Tell_In = 0,
 
         [EnumOrder(1)]
-        Tell = 17,
+        悄悄话 = 17,
 
         [EnumOrder(2)]
-        Say = 1,
+        说 = 1,
 
         [EnumOrder(3)]
-        Party = 2,
+        小队 = 2,
 
         [EnumOrder(4)]
-        Alliance = 3,
+        团队 = 3,
 
         [EnumOrder(5)]
         Yell = 4,
@@ -53,58 +53,58 @@ public static class ChatChannel
         Shout = 5,
 
         [EnumOrder(7)]
-        FreeCompany = 6,
+        部队 = 6,
 
         [EnumOrder(8)]
-        NoviceNetwork = 8,
+        新人频道 = 8,
 
         [EnumOrder(9)]
-        CWL1 = 9,
+        跨服通讯贝1 = 9,
 
         [EnumOrder(10)]
-        CWL2 = 10,
+        跨服通讯贝2 = 10,
 
         [EnumOrder(11)]
-        CWL3 = 11,
+        跨服通讯贝3 = 11,
 
         [EnumOrder(12)]
-        CWL4 = 12,
+        跨服通讯贝4 = 12,
 
         [EnumOrder(13)]
-        CWL5 = 13,
+        跨服通讯贝5 = 13,
 
         [EnumOrder(14)]
-        CWL6 = 14,
+        跨服通讯贝6 = 14,
 
         [EnumOrder(15)]
-        CWL7 = 15,
+        跨服通讯贝7 = 15,
 
         [EnumOrder(16)]
-        CWL8 = 16,
+        跨服通讯贝8 = 16,
 
         [EnumOrder(17)]
-        LS1 = 19,
+        通讯贝1 = 19,
 
         [EnumOrder(18)]
-        LS2 = 20,
+        通讯贝2 = 20,
 
         [EnumOrder(19)]
-        LS3 = 21,
+        通讯贝3 = 21,
 
         [EnumOrder(20)]
-        LS4 = 22,
+        通讯贝4 = 22,
 
         [EnumOrder(21)]
-        LS5 = 23,
+        通讯贝5 = 23,
 
         [EnumOrder(22)]
-        LS6 = 24,
+        通讯贝6 = 24,
 
         [EnumOrder(23)]
-        LS7 = 25,
+        通讯贝7 = 25,
 
         [EnumOrder(24)]
-        LS8 = 26,
+        通讯贝8 = 26,
     }
 
     /// <summary> This method is used to get the current chat channel. </summary>
@@ -123,37 +123,37 @@ public static class ChatChannel
     public static IEnumerable<ChatChannels> GetOrderedChannels() {
         return Enum.GetValues(typeof(ChatChannels))
                 .Cast<ChatChannels>()
-                .Where(e => e != ChatChannels.Tell_In && e != ChatChannels.NoviceNetwork)
+                .Where(e => e != ChatChannels.Tell_In && e != ChatChannels.新人频道)
                 .OrderBy(e => GetOrder(e));
     }
 
     // Match Channel types with command aliases for them
     public static string[] GetChannelAlias(this ChatChannels channel) => channel switch
     {
-        ChatChannels.Tell => new[] { "/t", "/tell"},
-        ChatChannels.Say => new[] { "/s", "/say" },
-        ChatChannels.Party => new[] { "/p", "/party" },
-        ChatChannels.Alliance => new[] { "/a", "/alliance" },
+        ChatChannels.悄悄话 => new[] { "/t", "/tell"},
+        ChatChannels.说 => new[] { "/s", "/say" },
+        ChatChannels.小队 => new[] { "/p", "/party" },
+        ChatChannels.团队 => new[] { "/a", "/alliance" },
         ChatChannels.Yell => new[] { "/y", "/yell" },
         ChatChannels.Shout => new[] { "/sh", "/shout" },
-        ChatChannels.FreeCompany => new[] { "/fc", "/freecompany" },
-        ChatChannels.NoviceNetwork => new[] { "/n", "/novice" },
-        ChatChannels.CWL1 => new[] { "/cwl1", "/cwlinkshell1" },
-        ChatChannels.CWL2 => new[] { "/cwl2", "/cwlinkshell2" },
-        ChatChannels.CWL3 => new[] { "/cwl3", "/cwlinkshell3" },
-        ChatChannels.CWL4 => new[] { "/cwl4", "/cwlinkshell4" },
-        ChatChannels.CWL5 => new[] { "/cwl5", "/cwlinkshell5" },
-        ChatChannels.CWL6 => new[] { "/cwl6", "/cwlinkshell6" },
-        ChatChannels.CWL7 => new[] { "/cwl7", "/cwlinkshell7" },
-        ChatChannels.CWL8 => new[] { "/cwl8", "/cwlinkshell8" },
-        ChatChannels.LS1 => new[] { "/l1", "/linkshell1" },
-        ChatChannels.LS2 => new[] { "/l2", "/linkshell2" },
-        ChatChannels.LS3 => new[] { "/l3", "/linkshell3" },
-        ChatChannels.LS4 => new[] { "/l4", "/linkshell4" },
-        ChatChannels.LS5 => new[] { "/l5", "/linkshell5" },
-        ChatChannels.LS6 => new[] { "/l6", "/linkshell6" },
-        ChatChannels.LS7 => new[] { "/l7", "/linkshell7" },
-        ChatChannels.LS8 => new[] { "/l8", "/linkshell8" },
+        ChatChannels.部队 => new[] { "/fc", "/freecompany" },
+        ChatChannels.新人频道 => new[] { "/n", "/novice" },
+        ChatChannels.跨服通讯贝1 => new[] { "/cwl1", "/cwlinkshell1" },
+        ChatChannels.跨服通讯贝2 => new[] { "/cwl2", "/cwlinkshell2" },
+        ChatChannels.跨服通讯贝3 => new[] { "/cwl3", "/cwlinkshell3" },
+        ChatChannels.跨服通讯贝4 => new[] { "/cwl4", "/cwlinkshell4" },
+        ChatChannels.跨服通讯贝5 => new[] { "/cwl5", "/cwlinkshell5" },
+        ChatChannels.跨服通讯贝6 => new[] { "/cwl6", "/cwlinkshell6" },
+        ChatChannels.跨服通讯贝7 => new[] { "/cwl7", "/cwlinkshell7" },
+        ChatChannels.跨服通讯贝8 => new[] { "/cwl8", "/cwlinkshell8" },
+        ChatChannels.通讯贝1 => new[] { "/l1", "/linkshell1" },
+        ChatChannels.通讯贝2 => new[] { "/l2", "/linkshell2" },
+        ChatChannels.通讯贝3 => new[] { "/l3", "/linkshell3" },
+        ChatChannels.通讯贝4 => new[] { "/l4", "/linkshell4" },
+        ChatChannels.通讯贝5 => new[] { "/l5", "/linkshell5" },
+        ChatChannels.通讯贝6 => new[] { "/l6", "/linkshell6" },
+        ChatChannels.通讯贝7 => new[] { "/l7", "/linkshell7" },
+        ChatChannels.通讯贝8 => new[] { "/l8", "/linkshell8" },
         _ => Array.Empty<string>(),
     };
 
@@ -178,31 +178,31 @@ public static class ChatChannel
     public static ChatChannels? GetChatChannelFromXivChatType(XivChatType type) {
         return type switch
         {
-            XivChatType.TellIncoming    => ChatChannels.Tell,
-            XivChatType.TellOutgoing    => ChatChannels.Tell,
-            XivChatType.Say             => ChatChannels.Say,
-            XivChatType.Party           => ChatChannels.Party,
-            XivChatType.Alliance        => ChatChannels.Alliance,
+            XivChatType.TellIncoming    => ChatChannels.悄悄话,
+            XivChatType.TellOutgoing    => ChatChannels.悄悄话,
+            XivChatType.Say             => ChatChannels.说,
+            XivChatType.Party           => ChatChannels.小队,
+            XivChatType.Alliance        => ChatChannels.团队,
             XivChatType.Yell            => ChatChannels.Yell,
             XivChatType.Shout           => ChatChannels.Shout,
-            XivChatType.FreeCompany     => ChatChannels.FreeCompany,
-            XivChatType.NoviceNetwork   => ChatChannels.NoviceNetwork,
-            XivChatType.Ls1             => ChatChannels.LS1,
-            XivChatType.Ls2             => ChatChannels.LS2,
-            XivChatType.Ls3             => ChatChannels.LS3,
-            XivChatType.Ls4             => ChatChannels.LS4,
-            XivChatType.Ls5             => ChatChannels.LS5,
-            XivChatType.Ls6             => ChatChannels.LS6,
-            XivChatType.Ls7             => ChatChannels.LS7,
-            XivChatType.Ls8             => ChatChannels.LS8,
-            XivChatType.CrossLinkShell1 => ChatChannels.CWL1,
-            XivChatType.CrossLinkShell2 => ChatChannels.CWL2,
-            XivChatType.CrossLinkShell3 => ChatChannels.CWL3,
-            XivChatType.CrossLinkShell4 => ChatChannels.CWL4,
-            XivChatType.CrossLinkShell5 => ChatChannels.CWL5,
-            XivChatType.CrossLinkShell6 => ChatChannels.CWL6,
-            XivChatType.CrossLinkShell7 => ChatChannels.CWL7,
-            XivChatType.CrossLinkShell8 => ChatChannels.CWL8,
+            XivChatType.FreeCompany     => ChatChannels.部队,
+            XivChatType.NoviceNetwork   => ChatChannels.新人频道,
+            XivChatType.Ls1             => ChatChannels.通讯贝1,
+            XivChatType.Ls2             => ChatChannels.通讯贝2,
+            XivChatType.Ls3             => ChatChannels.通讯贝3,
+            XivChatType.Ls4             => ChatChannels.通讯贝4,
+            XivChatType.Ls5             => ChatChannels.通讯贝5,
+            XivChatType.Ls6             => ChatChannels.通讯贝6,
+            XivChatType.Ls7             => ChatChannels.通讯贝7,
+            XivChatType.Ls8             => ChatChannels.通讯贝8,
+            XivChatType.CrossLinkShell1 => ChatChannels.跨服通讯贝1,
+            XivChatType.CrossLinkShell2 => ChatChannels.跨服通讯贝2,
+            XivChatType.CrossLinkShell3 => ChatChannels.跨服通讯贝3,
+            XivChatType.CrossLinkShell4 => ChatChannels.跨服通讯贝4,
+            XivChatType.CrossLinkShell5 => ChatChannels.跨服通讯贝5,
+            XivChatType.CrossLinkShell6 => ChatChannels.跨服通讯贝6,
+            XivChatType.CrossLinkShell7 => ChatChannels.跨服通讯贝7,
+            XivChatType.CrossLinkShell8 => ChatChannels.跨服通讯贝8,
             _ => null
         };
     }

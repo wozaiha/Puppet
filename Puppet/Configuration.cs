@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Dalamud.Configuration;
 using Dalamud.Plugin;
 using Puppet.PuppetMaster;
+using Puppet.Windows;
 
 namespace Puppet
 {
@@ -18,6 +19,10 @@ namespace Puppet
         public List<string> WhiteList { get; set; } = [];
 
         public string Trigger = string.Empty;
+
+        public List<Alias> Aliases { get; set; } = [];
+
+        public int Target { get; set; } = 0;
 
         // the below exist just to make saving less cumbersome
         [NonSerialized]

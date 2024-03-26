@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Dalamud.Game.Command;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Logging;
@@ -66,6 +67,10 @@ namespace Puppet
 
             Emotes = DalamudApi.GameData.GetExcelSheet<Emote>();
 
+#if DEBUG
+            ConfigWindow.IsOpen = true;
+#endif
+
         }
 
         private void ChatOnChatMessage(XivChatType type, uint senderid, ref SeString sender, ref SeString message, ref bool ishandled)
@@ -77,14 +82,17 @@ namespace Puppet
             if (!Configuration.ChannelsPuppeteer.Contains(channel)) return;
             //if (!Configuration.WhiteList.Contains(sender.TextValue)) return;
 
-            HandleMessage(message.TextValue, sender.TextValue);
+            var from = (PlayerPayload)sender.Payloads.Where(x => x.Type == PayloadType.Player)?.FirstOrDefault();
+            //if (from is null) return;
+
+            HandleMessage(message.TextValue, from?.DisplayedName);
 
             //ishandled = true;
         }
 
-        private void HandleMessage(string message, string sender)
+        private void HandleMessage(string message, string? sender)
         {
-            DalamudApi.Log.Warning($"Handle:from {sender} : {message}");
+            DalamudApi.Log.Warning($"Handle:from {sender} : {message} : from target = {sender == ConfigWindow.TargetName}");
 
             var str = $@"(?<={Regex.Escape(Configuration.Trigger)} ).*";
             var regex = new Regex(str);
@@ -102,10 +110,7 @@ namespace Puppet
 
             try
             {
-
-#if DEBUG
                 DalamudApi.Log.Warning($"Sending Command: /{command}");
-#endif
 
                 RealChat.SendMessage("/" + command);
             }
