@@ -1,19 +1,10 @@
 using System;
-using System.Numerics;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.InteropServices.Marshalling;
-using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface.GameFonts;
-using Dalamud.Interface;
-using Dalamud.Interface.Colors;
 using Dalamud.Interface.ManagedFontAtlas;
-using Dalamud.Interface.Style;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
-using Dalamud.Utility;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
 using Puppet.PuppetMaster;
 
 
@@ -106,7 +97,6 @@ public class ConfigWindow : Window, IDisposable
                 Configuration.Aliases.Add(new Alias());
             }
             
-
             ImGui.EndTable();
             if (changed) Configuration.Save();
 
@@ -212,12 +202,13 @@ public class ConfigWindow : Window, IDisposable
                 ImGui.TableSetupColumn(s);
             }
             ImGui.TableHeadersRow();
+
             var i = 0;
             foreach (var player in Configuration.WhiteList)
             {
-                ImGui.NextColumn();
+                ImGui.TableNextColumn();
                 ImGui.Text($"{player}");
-                ImGui.NextColumn();
+                ImGui.TableNextColumn();
                 if (ImGui.Button($"删除##{i}"))
                 {
                     Configuration.WhiteList.RemoveAt(i);

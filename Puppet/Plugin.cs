@@ -1,14 +1,11 @@
 using System;
-using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Dalamud.Game.Command;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
-using Dalamud.Logging;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
@@ -81,7 +78,7 @@ namespace Puppet
             if (Configuration.Trigger.IsNullOrEmpty()) return;
             if (!Configuration.ChannelsPuppeteer.Contains(channel)) return;
 
-            var from = ((PlayerPayload)sender.Payloads.Where(x => x.Type == PayloadType.Player)?.FirstOrDefault()!).DisplayedName;
+            var from = ((PlayerPayload)sender.Payloads.Where(x => x.Type == PayloadType.Player)?.FirstOrDefault())?.DisplayedName;
 
             switch ((ConfigWindow.OpenTo)Configuration.Target)
             {
@@ -99,6 +96,8 @@ namespace Puppet
             }
 
             var msg = message.TextValue;
+            if (!msg.Contains(Configuration.Trigger)) return;
+            msg = msg.Replace(Configuration.Trigger, "").Trim();
             foreach (var alias in Configuration.Aliases)
             {
                 msg = alias.Replace(msg, alias);
@@ -111,27 +110,22 @@ namespace Puppet
 
         private void HandleMessage(string message, string? sender)
         {
-            DalamudApi.Log.Warning($"Handle:from {sender} : {message} : from target = {sender == ConfigWindow.TargetName}");
-
-            var str = $@"(?<={Regex.Escape(Configuration.Trigger)} ).*";
-            var regex = new Regex(str);
-            var match = regex.Match(message);
-            if (!match.Success) return;
-            var command = match.Value;
-            command = command.Replace("[", "<").Replace("]", ">");
+            message = message.Replace("[", "<").Replace("]", ">");
+            //DalamudApi.Log.Warning($"Handle:from {sender} : {message} : from target = {sender == ConfigWindow.TargetName}");
+            
 
             //是表情
-            var emote = command.Split(" ")[0];
+            var emote = message.Split(" ")[0];
             if (Emotes!.Any(x => x.Name == emote))
             {
-                command += " motion";
+                message += " motion";
             }
 
             try
             {
-                DalamudApi.Log.Warning($"Sending Command: /{command}");
+                //DalamudApi.Log.Warning($"Sending Command: /{message}");
 
-                RealChat.SendMessage("/" + command);
+                RealChat.SendMessage("/" + message);
             }
             catch (Exception e)
             {

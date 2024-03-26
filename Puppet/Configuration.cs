@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Dalamud.Configuration;
 using Dalamud.Plugin;
 using Puppet.PuppetMaster;
-using Puppet.Windows;
 
 namespace Puppet
 {

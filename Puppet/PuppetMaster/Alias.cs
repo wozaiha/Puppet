@@ -1,6 +1,5 @@
 using System;
 using System.Text.RegularExpressions;
-using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace Puppet.PuppetMaster;
 public enum AliasType
@@ -23,6 +22,7 @@ public class Alias
                 To = to;
                 break;
             case AliasType.GlamourerApply:
+                From = from;
                 break;
             default:
                 break;
@@ -34,7 +34,6 @@ public class Alias
     {
         var from = alias.From;
         var to = alias.To;
-
         switch (alias.Type)
         {
             case AliasType.Normal:
@@ -42,8 +41,8 @@ public class Alias
                 to = $@"{to}";
                 break;
             case AliasType.GlamourerApply:
-                from = $@"(?<={from})(.*)";
-                to = $@"glamour apply $1 | [me] ; true";
+                from = $@"{from}(.*)";
+                to = $@"glamour apply $1 | [me]; true";
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

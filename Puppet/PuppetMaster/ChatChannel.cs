@@ -47,10 +47,10 @@ public static class ChatChannel
         团队 = 3,
 
         [EnumOrder(5)]
-        Yell = 4,
+        呼喊 = 4,
 
         [EnumOrder(6)]
-        Shout = 5,
+        喊话 = 5,
 
         [EnumOrder(7)]
         部队 = 6,
@@ -134,8 +134,8 @@ public static class ChatChannel
         ChatChannels.说 => new[] { "/s", "/say" },
         ChatChannels.小队 => new[] { "/p", "/party" },
         ChatChannels.团队 => new[] { "/a", "/alliance" },
-        ChatChannels.Yell => new[] { "/y", "/yell" },
-        ChatChannels.Shout => new[] { "/sh", "/shout" },
+        ChatChannels.呼喊 => new[] { "/y", "/yell" },
+        ChatChannels.喊话 => new[] { "/sh", "/shout" },
         ChatChannels.部队 => new[] { "/fc", "/freecompany" },
         ChatChannels.新人频道 => new[] { "/n", "/novice" },
         ChatChannels.跨服通讯贝1 => new[] { "/cwl1", "/cwlinkshell1" },
@@ -183,8 +183,8 @@ public static class ChatChannel
             XivChatType.Say             => ChatChannels.说,
             XivChatType.Party           => ChatChannels.小队,
             XivChatType.Alliance        => ChatChannels.团队,
-            XivChatType.Yell            => ChatChannels.Yell,
-            XivChatType.Shout           => ChatChannels.Shout,
+            XivChatType.Yell            => ChatChannels.呼喊,
+            XivChatType.Shout           => ChatChannels.喊话,
             XivChatType.FreeCompany     => ChatChannels.部队,
             XivChatType.NoviceNetwork   => ChatChannels.新人频道,
             XivChatType.Ls1             => ChatChannels.通讯贝1,
