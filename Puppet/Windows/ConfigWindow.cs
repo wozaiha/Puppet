@@ -6,9 +6,12 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Interface.GameFonts;
 using Dalamud.Interface;
+using Dalamud.Interface.Colors;
 using Dalamud.Interface.ManagedFontAtlas;
+using Dalamud.Interface.Style;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
+using Dalamud.Utility;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using Puppet.PuppetMaster;
@@ -110,7 +113,7 @@ public class ConfigWindow : Window, IDisposable
         }
     }
 
-    public enum WhiteList
+    public enum OpenTo
     {
         仅目标,白名单,白名单及好友,所有人
     }
@@ -135,7 +138,7 @@ public class ConfigWindow : Window, IDisposable
         for (int i = 0; i < 4; i++)
         {
             ImGui.SameLine();
-            if (ImGui.RadioButton($"{(WhiteList)i}", ref current, i))
+            if (ImGui.RadioButton($"{(OpenTo)i}", ref current, i))
             {
                 Configuration.Target = current;
                 Configuration.Save();
@@ -181,6 +184,55 @@ public class ConfigWindow : Window, IDisposable
         
     }
 
+    private void WhiteListTab()
+    {
+        var y = ImGui.GetCursorPosY();
+        ImGui.SetCursorPosY(y + 8f);
+        ImGui.Text("当前目标:");
+        ImGui.SameLine();
+        ImGui.SetCursorPosY(y);
+        var target = TargetName!;
+        ImGui.SetNextItemWidth(300f);
+        using (GameFont.Push())
+        {
+            ImGui.InputText($"##{target}", ref target, (uint)target.Length, ImGuiInputTextFlags.ReadOnly);
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("添加") && target.Length > 1)
+        {
+            Configuration.WhiteList.Add(target);
+            Configuration.Save();
+        }
+        ImGui.Separator();
+
+        if (ImGui.BeginTable($"WhiteListPlayer", 2, ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders))
+        {
+            foreach (var s in new string[]{"角色名","操作"})
+            {
+                ImGui.TableSetupColumn(s);
+            }
+            ImGui.TableHeadersRow();
+            var i = 0;
+            foreach (var player in Configuration.WhiteList)
+            {
+                ImGui.NextColumn();
+                ImGui.Text($"{player}");
+                ImGui.NextColumn();
+                if (ImGui.Button($"删除##{i}"))
+                {
+                    Configuration.WhiteList.RemoveAt(i);
+                    break;
+                }
+
+                i++;
+            }
+            ImGui.EndTable();
+        }
+
+    }
+
+
+
     public override void Draw()
     {
             if (ImGui.BeginTabBar("All Tabs"))
@@ -194,6 +246,12 @@ public class ConfigWindow : Window, IDisposable
                 if (ImGui.BeginTabItem("Alias"))
                 {
                     AliasTab();
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("WhiteList"))
+                {
+                    WhiteListTab();
                     ImGui.EndTabItem();
                 }
 

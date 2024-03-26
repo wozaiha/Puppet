@@ -80,7 +80,6 @@ namespace Puppet
             if (channel == null) return;
             if (Configuration.Trigger.IsNullOrEmpty()) return;
             if (!Configuration.ChannelsPuppeteer.Contains(channel)) return;
-            //if (!Configuration.WhiteList.Contains(sender.TextValue)) return;
 
             var from = (PlayerPayload)sender.Payloads.Where(x => x.Type == PayloadType.Player)?.FirstOrDefault();
             //if (from is null) return;
