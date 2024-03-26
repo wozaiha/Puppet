@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.Command;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
@@ -95,35 +97,42 @@ namespace Puppet
                     throw new ArgumentOutOfRangeException();
             }
 
-            var msg = message.TextValue;
-            if (!msg.Contains(Configuration.Trigger)) return;
-            msg = msg.Replace(Configuration.Trigger, "").Trim();
+            var str = message.TextValue;
+            if (!str.Contains(Configuration.Trigger)) return;
+            str = str.Replace(Configuration.Trigger, "").Trim();
             foreach (var alias in Configuration.Aliases)
             {
+                if (!alias.Enabled) return;
+                var msg = str;
+                if (!Regex.IsMatch(msg,alias.From)) continue;
                 msg = alias.Replace(msg, alias);
+                
+                //DalamudApi.Log.Warning($"Handle:from {sender} : {message} : from target = {sender == ConfigWindow.TargetName}");
+
+                //是表情
+                var emote = msg.Split(" ")[0];
+                if (Emotes!.Any(x => x.Name == emote))
+                {
+                    msg += " motion";
+                }
+
+                HandleMessage(msg);
+
             }
 
-            HandleMessage(msg, from);
-            //ishandled = true;
+            
+            
         }
 
-        private void HandleMessage(string message, string? sender)
+        private void HandleMessage(string message)
         {
-            message = message.Replace("[", "<").Replace("]", ">");
-            //DalamudApi.Log.Warning($"Handle:from {sender} : {message} : from target = {sender == ConfigWindow.TargetName}");
-            
-
-            //是表情
-            var emote = message.Split(" ")[0];
-            if (Emotes!.Any(x => x.Name == emote))
-            {
-                message += " motion";
-            }
-
+           if (message.IsNullOrEmpty()) return;
+           message = message.Replace("[", "<").Replace("]", ">");
             try
             { 
                 DalamudApi.Log.Information($"Sending Command: /{message}");
                 RealChat.SendMessage("/" + message);
+
             }
             catch (Exception e)
             {

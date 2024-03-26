@@ -11,8 +11,6 @@ namespace Puppet
     {
         public int Version { get; set; } = 0;
 
-        public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
-
         public List<ChatChannel.ChatChannels?> ChannelsPuppeteer { get; set; } = [];
 
         public List<string> WhiteList { get; set; } = [];

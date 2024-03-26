@@ -1,48 +1,50 @@
 using System;
 using System.Text.RegularExpressions;
+using Dalamud.Utility;
 
 namespace Puppet.PuppetMaster;
 public enum AliasType
 {
-    Normal, GlamourerApply
+    普通, Gla预设, Gla单件, Customize ,
 }
 public class Alias
 {
     public bool Enabled = false;
     public string From = String.Empty;
     public string To = String.Empty;
-    public AliasType Type = AliasType.Normal;
+    public AliasType Type = AliasType.普通;
+    public bool EnableCP = false;
 
-    public Alias(string from = "", string to = "", AliasType type = AliasType.Normal)
+    public Alias(string from = "", string to = "", AliasType type = AliasType.普通)
     {
-        switch (type)
-        {
-            case AliasType.Normal:
-                From = from;
-                To = to;
-                break;
-            case AliasType.GlamourerApply:
-                From = from;
-                break;
-            default:
-                break;
-        }
+        From = from;
+        To = to;
         Type = type;
     }
 
     public string Replace(string text, Alias alias)
     {
+        DalamudApi.Log.Information($"Replacing:{text} with {alias.From} to {alias.To}");
         var from = alias.From;
         var to = alias.To;
         switch (alias.Type)
         {
-            case AliasType.Normal:
+            case AliasType.普通:
                 from = $@"{from}";
                 to = $@"{to}";
                 break;
-            case AliasType.GlamourerApply:
-                from = $@"{from}(.*)";
-                to = $@"glamour apply $1 | [me]; true";
+            case AliasType.Gla预设:
+                from = $@".*{from}(\S*|[^,，]*).*";
+                to = to.IsNullOrEmpty() ? $@"glamour apply $1 | [me]; true" : $@"glamour apply {to} | [me]; true";
+                break;
+            case AliasType.Gla单件:
+                from = $@".*{from}(\S*|[^,，]*).*";
+                to = to.IsNullOrEmpty() ? $@"glamour applyitem $1 | [me]" : $@"glamour applyitem {to} | [me]";
+                break;
+            case AliasType.Customize:
+                if (To.IsNullOrEmpty()) return "";
+                from = $@".*{from}(\S*|[^,，]*).*";
+                to = $"c+ profile {(EnableCP ? "enable" : "disable")} [me],{To} ";
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
