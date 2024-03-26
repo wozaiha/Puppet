@@ -5,7 +5,7 @@ using Dalamud.Utility;
 namespace Puppet.PuppetMaster;
 public enum AliasType
 {
-    普通, Gla预设, Gla单件, Customize ,
+    普通, Gla预设, Gla单件, Customize, Moodles效果, Moodles预设
 }
 public class Alias
 {
@@ -13,7 +13,7 @@ public class Alias
     public string From = String.Empty;
     public string To = String.Empty;
     public AliasType Type = AliasType.普通;
-    public bool EnableCP = false;
+    public bool EnableAdv = false;
 
     public Alias(string from = "", string to = "", AliasType type = AliasType.普通)
     {
@@ -44,7 +44,17 @@ public class Alias
             case AliasType.Customize:
                 if (To.IsNullOrEmpty()) return "";
                 from = $@".*{from}(\S*|[^,，]*).*";
-                to = $"c+ profile {(EnableCP ? "enable" : "disable")} [me],{To} ";
+                to = $"c+ profile {(EnableAdv ? "enable" : "disable")} [me],{To} ";
+                break;
+            case AliasType.Moodles效果:
+                if (To.IsNullOrEmpty()) return "";
+                from = $@".*{from}(\S*|[^,，]*).*";
+                to = $"moodle {(EnableAdv ? "apply" : "remove")} self moodle \"{To}\"";
+                break;
+            case AliasType.Moodles预设:
+                if (To.IsNullOrEmpty()) return "";
+                from = $@".*{from}(\S*|[^,，]*).*";
+                to = $"moodle {(EnableAdv ? "apply" : "remove")} self preset \"{To}\"";
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
