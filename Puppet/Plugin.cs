@@ -81,12 +81,32 @@ namespace Puppet
             if (Configuration.Trigger.IsNullOrEmpty()) return;
             if (!Configuration.ChannelsPuppeteer.Contains(channel)) return;
 
-            var from = (PlayerPayload)sender.Payloads.Where(x => x.Type == PayloadType.Player)?.FirstOrDefault();
-            //if (from is null) return;
+            var from = ((PlayerPayload)sender.Payloads.Where(x => x.Type == PayloadType.Player)?.FirstOrDefault()!).DisplayedName;
 
-            HandleMessage(message.TextValue, from?.DisplayedName);
+            switch ((ConfigWindow.OpenTo)Configuration.Target)
+            {
+                case ConfigWindow.OpenTo.仅目标:
+                    if (from != ConfigWindow.TargetName) return;
+                    break;
+                case ConfigWindow.OpenTo.白名单:
+                    if (!Configuration.WhiteList.Contains(from)) return;
+                    break;
+                case ConfigWindow.OpenTo.所有人:
+                    //if (from.IsNullOrEmpty()) return;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-            //ishandled = true;
+            var msg = message.TextValue;
+            foreach (var alias in Configuration.Aliases)
+            {
+                msg = alias.Replace(msg, alias);
+            }
+
+            HandleMessage(msg, from);
+
+            ishandled = true;
         }
 
         private void HandleMessage(string message, string? sender)

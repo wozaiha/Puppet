@@ -115,7 +115,7 @@ public class ConfigWindow : Window, IDisposable
 
     public enum OpenTo
     {
-        仅目标,白名单,白名单及好友,所有人
+        仅目标,白名单,所有人
     }
 
     
@@ -135,7 +135,7 @@ public class ConfigWindow : Window, IDisposable
 
         ImGui.Text("权限设置:");
         var current = Configuration.Target;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 3; i++)
         {
             ImGui.SameLine();
             if (ImGui.RadioButton($"{(OpenTo)i}", ref current, i))
