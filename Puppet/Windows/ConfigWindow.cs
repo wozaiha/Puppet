@@ -114,6 +114,12 @@ public class ConfigWindow : Window, IDisposable
                         changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 50);
                         if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效\n须填写GUID或完整预设路径");
                         break;
+                    case AliasType.DB静态预设:
+                        width = ImGui.GetColumnWidth();
+                        ImGui.SetNextItemWidth(width);
+                        changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"请填入DynamicBridge静态预设名,留空则尝试重新应用规则");
+                        break;
                 }
 
                 ImGui.TableNextColumn();

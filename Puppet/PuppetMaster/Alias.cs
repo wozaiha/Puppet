@@ -11,7 +11,8 @@ public enum AliasType
     Gla单件,
     Customize,
     Moodles效果,
-    Moodles预设
+    Moodles预设,
+    DB静态预设
 }
 
 public class Alias
@@ -62,6 +63,10 @@ public class Alias
                 if (To.IsNullOrEmpty()) return "";
                 from = $@".*{from}([^,，\s]*).*";
                 to = $"moodle {(EnableAdv ? "apply" : "remove")} self preset \"{To}\"";
+                break;
+            case AliasType.DB静态预设:
+                from = $@".*{from}([^,，\s]*).*";
+                to = to.IsNullOrEmpty() ? $@"db apply" : $@"db static {to}";
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
