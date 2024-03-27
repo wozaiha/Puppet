@@ -110,6 +110,7 @@ public sealed class Plugin : IDalamudPlugin
         {
             if (!alias.Enabled) continue;
             var msg = str;
+            if (alias.From.IsNullOrEmpty()) continue;
             if (!Regex.IsMatch(msg, alias.From)) continue;
             matched = true;
             msg = alias.Replace(msg, alias);
