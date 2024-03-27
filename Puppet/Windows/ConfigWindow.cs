@@ -30,7 +30,7 @@ public class ConfigWindow : Window, IDisposable
                                      : "";
 
     public ConfigWindow(Plugin plugin) : base(
-        "Puppeteer 设置"
+        "Puppet 设置"
     )
     {
         //this.Size = new Vector2(232, 75);
@@ -293,7 +293,7 @@ public class ConfigWindow : Window, IDisposable
             ImGui.EndTable();
         }
 
-        if (ImGui.Button($"更新Gla"))
+        if (ImGui.Button($"从Gla拉取数据"))
         {
             glaPre = Ipc.GetDesignList.InvokeFunc().Select(x => x.Name).ToList();
             ;

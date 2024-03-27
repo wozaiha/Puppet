@@ -11,5 +11,6 @@
     <PackageProjectUrl>https://github.com/wozaiha/Puppet</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
   </PropertyGroup>
 </Project>
