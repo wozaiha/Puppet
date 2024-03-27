@@ -92,7 +92,7 @@ public sealed class Plugin : IDalamudPlugin
                 break;
             case ConfigWindow.OpenTo.所有人:
 #if DEBUG
-                if (DalamudApi.ClientState.LocalPlayer?.ObjectId == senderid) break;
+                if (DalamudApi.ClientState.LocalPlayer?.Name.TextValue == sender.TextValue) break;
 #endif
                 if (from.IsNullOrEmpty()) return;
                 break;
@@ -103,17 +103,30 @@ public sealed class Plugin : IDalamudPlugin
         var str = message.TextValue;
         if (!str.Contains(Configuration.Trigger)) return;
         str = str.Replace(Configuration.Trigger, "").Trim();
+
+        var matched = false;
+
         foreach (var alias in Configuration.Aliases)
         {
-            if (!alias.Enabled) return;
+            if (!alias.Enabled) continue;
             var msg = str;
             if (!Regex.IsMatch(msg, alias.From)) continue;
+            matched = true;
             msg = alias.Replace(msg, alias);
 
             //是表情
             var emote = msg.Split(" ")[0];
             if (Emotes!.Any(x => x.Name == emote)) msg += " motion";
 
+            HandleMessage(msg);
+        }
+
+        //全都不中
+        if (!matched)
+        {
+            var msg = str;
+            var emote = msg.Split(" ")[0];
+            if (Emotes!.Any(x => x.Name == emote)) msg += " motion";
             HandleMessage(msg);
         }
     }
