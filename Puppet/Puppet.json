@@ -1,12 +1,14 @@
 {
-  "Author": "your name here",
-  "Name": "Puppet",
-  "Punchline": "A short one-liner that shows up in /xlplugins.",
-  "Description": "A description that shows up in /xlplugins. List any major slash-command(s).",
-  "ApplicableVersion": "any",
-  "Tags": [
-    "sample",
-    "plugin",
-    "goats"
-  ]
+    "Author": "wozaiha",
+    "Name": "Puppet",
+    "Punchline": "Puppeteer Plus Pro Ultra Maxx",
+    "Description": "个人修改版Puppeteer,欢迎来提新功能需求",
+    "RepoUrl": "https://github.com/wozaiha/Puppet",
+    "CategoryTags": [
+        "BDSM",
+        "RP",
+        "Control"
+    ],
+    "InternalName": "Puppet",
+    "DalamudApiLevel": 9
 }
