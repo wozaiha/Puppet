@@ -66,7 +66,7 @@ public class Alias
                 break;
             case AliasType.DB静态预设:
                 from = $@".*{from}([^,，\s]*).*";
-                to = to.IsNullOrEmpty() ? $@"db apply" : $@"db static {to}";
+                to = to.IsNullOrEmpty() ? $@"db dynamic" : $@"db static {to}";
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

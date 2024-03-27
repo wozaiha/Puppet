@@ -119,7 +119,7 @@ public class ConfigWindow : Window, IDisposable
                         width = ImGui.GetColumnWidth();
                         ImGui.SetNextItemWidth(width);
                         changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
-                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"请填入DynamicBridge静态预设名,留空则尝试重新应用规则");
+                        if (ImGui.IsItemHovered()) ImGui.SetTooltip($"请填入DynamicBridge静态预设名,留空则恢复动态规则");
                         break;
                 }
 
