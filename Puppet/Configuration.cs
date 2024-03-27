@@ -17,7 +17,7 @@ public class Configuration : IPluginConfiguration
 
     public List<ChatChannel.ChatChannels?> ChannelsPuppeteer { get; set; } = [];
 
-    public List<string> WhiteList { get; set; } = [];
+    public List<string?> WhiteList { get; set; } = [];
 
     public List<Alias> Aliases { get; set; } = [];
 

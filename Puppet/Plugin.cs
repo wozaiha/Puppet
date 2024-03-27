@@ -91,7 +91,10 @@ public sealed class Plugin : IDalamudPlugin
                 if (!Configuration.WhiteList.Contains(from)) return;
                 break;
             case ConfigWindow.OpenTo.所有人:
-                if (from.IsNullOrEmpty() && DalamudApi.ClientState.LocalPlayer?.Name.TextValue != "旋羽翼") return;
+#if DEBUG
+                if (DalamudApi.ClientState.LocalPlayer?.ObjectId == senderid) break;
+#endif
+                if (from.IsNullOrEmpty()) return;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

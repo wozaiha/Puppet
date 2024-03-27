@@ -41,26 +41,26 @@ public class Alias
                 to = $@"{to}";
                 break;
             case AliasType.Gla预设:
-                from = $@".*{from}(\S*|[^,，]*).*";
+                from = $@".*{from}([^,，\s]*).*";
                 to = to.IsNullOrEmpty() ? $@"glamour apply $1 | [me]; true" : $@"glamour apply {to} | [me]; true";
                 break;
             case AliasType.Gla单件:
-                from = $@".*{from}(\S*|[^,，]*).*";
+                from = $@".*{from}([^,，\s]*).*";
                 to = to.IsNullOrEmpty() ? $@"glamour applyitem $1 | [me]" : $@"glamour applyitem {to} | [me]";
                 break;
             case AliasType.Customize:
                 if (To.IsNullOrEmpty()) return "";
-                from = $@".*{from}(\S*|[^,，]*).*";
+                from = $@".*{from}([^,，\s]*).*";
                 to = $"c+ profile {(EnableAdv ? "enable" : "disable")} [me],{To} ";
                 break;
             case AliasType.Moodles效果:
                 if (To.IsNullOrEmpty()) return "";
-                from = $@".*{from}(\S*|[^,，]*).*";
+                from = $@".*{from}([^,，\s]*).*";
                 to = $"moodle {(EnableAdv ? "apply" : "remove")} self moodle \"{To}\"";
                 break;
             case AliasType.Moodles预设:
                 if (To.IsNullOrEmpty()) return "";
-                from = $@".*{from}(\S*|[^,，]*).*";
+                from = $@".*{from}([^,，\s]*).*";
                 to = $"moodle {(EnableAdv ? "apply" : "remove")} self preset \"{To}\"";
                 break;
             default:
