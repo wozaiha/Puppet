@@ -13,6 +13,8 @@ public class Configuration : IPluginConfiguration
     [NonSerialized]
     private DalamudPluginInterface? PluginInterface;
 
+    public bool Enabled = false;
+
     public string Trigger = string.Empty;
 
     public List<ChatChannel.ChatChannels?> ChannelsPuppeteer { get; set; } = [];
@@ -32,5 +34,6 @@ public class Configuration : IPluginConfiguration
     public void Save()
     {
         PluginInterface!.SavePluginConfig(this);
+        
     }
 }

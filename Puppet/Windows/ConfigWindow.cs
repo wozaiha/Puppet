@@ -45,7 +45,7 @@ public class ConfigWindow : Window, IDisposable
 
     public void Dispose() { }
 
-    private string[] AliasHeaders = {"启用", "原内容", "替换为", "类型", "删除"};
+    private string[] AliasHeaders = {"启用", "原内容", "替换为", "类型", "操作"};
 
     private void AliasTab()
     {
@@ -56,6 +56,7 @@ public class ConfigWindow : Window, IDisposable
 
             var changed = false;
             var i = 0;
+            var needSort = -1;
             foreach (var alias in Configuration.Aliases)
             {
                 ImGui.TableNextColumn();
@@ -122,6 +123,8 @@ public class ConfigWindow : Window, IDisposable
                         break;
                 }
 
+                
+
                 ImGui.TableNextColumn();
                 width = ImGui.GetColumnWidth();
                 ImGui.SetNextItemWidth(width);
@@ -135,6 +138,8 @@ public class ConfigWindow : Window, IDisposable
 
 
                 ImGui.TableNextColumn();
+                DrawSortButton(i,ref needSort);
+                
                 if (!ImGui.GetIO().KeyCtrl) ImGui.BeginDisabled();
                 if (ImGui.Button($"删除##{i}"))
                 {
@@ -148,6 +153,8 @@ public class ConfigWindow : Window, IDisposable
                 i++;
             }
 
+            if (needSort > -1) Sort(needSort);
+
             ImGui.TableNextColumn();
             if (ImGui.Button($"添加##AddAlias"))
             {
@@ -159,6 +166,40 @@ public class ConfigWindow : Window, IDisposable
             if (changed) Configuration.Save();
         }
     }
+
+    private void DrawSortButton(int index, ref int needSort)
+    {
+        
+        if (index == 0) ImGui.BeginDisabled();
+        if (ImGui.ArrowButton($"##up{index}",ImGuiDir.Up))
+        {
+            needSort = index - 1;
+        }
+
+        if (index == 0) ImGui.EndDisabled();
+
+        ImGui.SameLine();
+        if (index == Configuration.Aliases.Count - 1) ImGui.BeginDisabled();
+        if (ImGui.ArrowButton($"## down{index}", ImGuiDir.Down))
+        {
+            needSort = index;
+        }
+
+        if (index == Configuration.Aliases.Count - 1) ImGui.EndDisabled();
+
+        ImGui.SameLine();
+        
+    }
+
+    private void Sort(int index)
+    {
+        
+        var alias = Configuration.Aliases[index];
+        Configuration.Aliases.RemoveAt(index);
+        Configuration.Aliases.Insert(index + 1, alias);
+        Configuration.Save();
+    }
+
 
     public enum OpenTo
     {
@@ -304,7 +345,7 @@ public class ConfigWindow : Window, IDisposable
             glaPre = Ipc.GetDesignList.InvokeFunc().Select(x => x.Name).ToList();
             ;
         }
-
+        
         ImGui.SameLine();
 
         if (ImGui.Button($"导出到剪切板")) ImGui.SetClipboardText(string.Join(",", glaPre));
@@ -317,6 +358,13 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
+        if (ImGui.Checkbox($"启用插件", ref Configuration.Enabled))
+        {
+            Configuration.Save();
+            
+        }
+
+        if (!Configuration.Enabled) ImGui.BeginDisabled();
         if (ImGui.BeginTabBar("All Tabs"))
         {
             if (ImGui.BeginTabItem("Puppeteer"))
@@ -345,5 +393,6 @@ public class ConfigWindow : Window, IDisposable
 
             ImGui.EndTabBar();
         }
+        if (!Configuration.Enabled) ImGui.EndDisabled();
     }
 }

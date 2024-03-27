@@ -73,6 +73,7 @@ public sealed class Plugin : IDalamudPlugin
     private void ChatOnChatMessage(
         XivChatType type, uint senderid, ref SeString sender, ref SeString message, ref bool ishandled)
     {
+        if (!Configuration.Enabled) return;
         var channel = ChatChannel.GetChatChannelFromXivChatType(type);
 
         if (channel == null) return;
