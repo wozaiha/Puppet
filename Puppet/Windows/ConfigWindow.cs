@@ -93,7 +93,7 @@ public class ConfigWindow : Window, IDisposable
                         if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效");
                         ImGui.SameLine();
                         ImGui.SetNextItemWidth(width - 30f);
-                        changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 50);
+                        changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
                         if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效");
                         break;
                     case AliasType.Moodles效果:
@@ -102,7 +102,7 @@ public class ConfigWindow : Window, IDisposable
                         if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选添加效果,不勾选移除效果,效果名留空该项不生效");
                         ImGui.SameLine();
                         ImGui.SetNextItemWidth(width - 30f);
-                        changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 50);
+                        changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
                         if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用效果,不勾选禁用效果,效果名留空该项不生效\n须填写GUID或完整效果路径");
                         break;
                     case AliasType.Moodles预设:
@@ -111,7 +111,7 @@ public class ConfigWindow : Window, IDisposable
                         if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选添加预设,不勾选移除预设,预设名留空该项不生效");
                         ImGui.SameLine();
                         ImGui.SetNextItemWidth(width - 30f);
-                        changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 50);
+                        changed |= ImGui.InputText($"##To{i}", ref Configuration.Aliases[i].To, 100);
                         if (ImGui.IsItemHovered()) ImGui.SetTooltip($"勾选启用预设,不勾选禁用预设,预设名留空该项不生效\n须填写GUID或完整预设路径");
                         break;
                     case AliasType.DB静态预设:
