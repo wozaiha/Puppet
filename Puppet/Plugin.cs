@@ -102,8 +102,8 @@ public sealed class Plugin : IDalamudPlugin
         }
 
         var str = message.TextValue;
-        if (!str.Contains(Configuration.Trigger)) return;
-        str = str.Replace(Configuration.Trigger, "").Trim();
+        if (!Regex.IsMatch(str, Configuration.Trigger)) return;
+        str = Regex.Replace(str, Configuration.Trigger, "");
 
         var matched = false;
 
