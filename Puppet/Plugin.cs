@@ -103,7 +103,7 @@ public sealed class Plugin : IDalamudPlugin
 
         var str = message.TextValue;
         if (!Regex.IsMatch(str, Configuration.Trigger)) return;
-        str = Regex.Replace(str, Configuration.Trigger, "");
+        str = Regex.Replace(str, Configuration.Trigger, "").Trim();
 
         var matched = false;
 
