@@ -23,7 +23,7 @@ public sealed class Plugin : IDalamudPlugin
     private const string CommandName = "/puppet";
     private ExcelSheet<Emote>? Emotes;
 
-    private DalamudPluginInterface PluginInterface { get; init; }
+    private IDalamudPluginInterface PluginInterface { get; init; }
     private ICommandManager CommandManager { get; init; }
     public RealChatInteraction RealChat { get; init; }
 
@@ -31,11 +31,10 @@ public sealed class Plugin : IDalamudPlugin
     public WindowSystem WindowSystem = new("Puppet");
 
     private ConfigWindow ConfigWindow { get; init; }
-    private MainWindow MainWindow { get; init; }
 
     public Plugin(
-        [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-        [RequiredVersion("1.0")] ICommandManager commandManager)
+        IDalamudPluginInterface pluginInterface,
+        ICommandManager commandManager)
     {
         PluginInterface = pluginInterface;
         CommandManager = commandManager;
@@ -71,7 +70,7 @@ public sealed class Plugin : IDalamudPlugin
     }
 
     private void ChatOnChatMessage(
-        XivChatType type, uint senderid, ref SeString sender, ref SeString message, ref bool ishandled)
+        XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool ishandled)
     {
         if (!Configuration.Enabled) return;
         var channel = ChatChannel.GetChatChannelFromXivChatType(type);
@@ -153,7 +152,6 @@ public sealed class Plugin : IDalamudPlugin
         WindowSystem.RemoveAllWindows();
 
         ConfigWindow?.Dispose();
-        MainWindow?.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
     }

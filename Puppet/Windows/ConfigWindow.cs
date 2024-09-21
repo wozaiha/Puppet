@@ -23,9 +23,9 @@ public class ConfigWindow : Window, IDisposable
     private PuppetIpc Ipc;
     private List<string> glaPre;
 
-    private GameObject? Target => DalamudApi.Targets.Target;
+    private IGameObject? Target => DalamudApi.Targets.Target;
 
-    public string? TargetName => Target is PlayerCharacter character
+    public string? TargetName => Target is IPlayerCharacter character
                                      ? $"{character?.Name.TextValue}\ue05d{character?.HomeWorld.GameData?.Name}"
                                      : "";
 

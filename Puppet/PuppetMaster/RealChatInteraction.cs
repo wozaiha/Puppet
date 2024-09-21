@@ -82,7 +82,7 @@ namespace Puppet.PuppetMaster;
                 throw new InvalidOperationException("Could not find signature for chat sending");
             }
             // Assuming it meets the correct conditions, we can begin to obtain the UI module pointer for the chatbox within the framework instance
-            var uiModule = (IntPtr) Framework.Instance()->GetUiModule();
+            var uiModule = (IntPtr) Framework.Instance()->UIModule;
                 
             // create a payload for our chat message
             using var payload = new ChatPayload(message);

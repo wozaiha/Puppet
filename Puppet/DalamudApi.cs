@@ -1,4 +1,4 @@
-﻿using Dalamud.Game;
+using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.IoC;
 using Dalamud.Plugin;
@@ -10,11 +10,11 @@ namespace Puppet;
 
 public class DalamudApi
 {
-    public static void Initialize(DalamudPluginInterface pluginInterface)
+    public static void Initialize(IDalamudPluginInterface pluginInterface)
         => pluginInterface.Create<DalamudApi>();
 
     // @formatter:off
-    [PluginService] public static DalamudPluginInterface PluginInterface { get; private set; } = null!;
+    [PluginService] public static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] public static ICommandManager Commands { get; private set; } = null!;
     [PluginService] public static ISigScanner SigScanner { get; private set; } = null!;
     [PluginService] public static IDataManager GameData { get; private set; } = null!;

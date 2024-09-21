@@ -17,7 +17,7 @@ namespace Puppet.PuppetMaster;
 public static class ChatChannel
 {
     // this is the agent that handles the chatlog
-    private static unsafe AgentChatLog* ChatlogAgent = (AgentChatLog*)Framework.Instance()->GetUiModule()->GetAgentModule()->GetAgentByInternalId(AgentId.ChatLog);
+    private static unsafe AgentChatLog* ChatlogAgent = (AgentChatLog*)Framework.Instance()->UIModule->GetAgentModule()->GetAgentByInternalId(AgentId.ChatLog);
 
     // this is the enum that handles the chat channels
     [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
