@@ -342,7 +342,7 @@ public class ConfigWindow : Window, IDisposable
 
         if (ImGui.Button($"从Gla拉取数据"))
         {
-            glaPre = Ipc.GetDesignList.InvokeFunc().Select(x => x.Name).ToList();
+            glaPre = Ipc.GetDesignList.InvokeFunc().Select(x => x.Value).ToList();
             ;
         }
         
