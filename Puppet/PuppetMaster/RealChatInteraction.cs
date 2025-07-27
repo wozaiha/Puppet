@@ -1,141 +1,119 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using Dalamud.Game;
-using Framework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework;
-// practicing modular design
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.System.Memory;
+using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI;
+
 namespace Puppet.PuppetMaster;
-    /// <summary>
-    /// <para> Creating/Modifying a packet BEFORE it gets sent to the server,
-    /// allowing us to send a message to the server, not just to dalamud chat.</para>
-    /// <para>This is NOT sending chat messages to the client, and as such should be used VERY CAREFULLY and with CAUTION.</para>
-    /// <para><b>If you plan on ever using this code anywhere else, make damn sure you know how it is working. </b></para>
-    /// </summary>
-    public class RealChatInteraction {
 
-        /// <summary> This is the signature for the chatbox, it is used to find the chatbox in memory. </summary>
-        private static class Signatures {
-            internal const string SendChat = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B FA 48 8B D9 45 84 C9"; // The Signatures for sending a message to the server
-        }
+public class ServerChat {
+	private static class Signatures {
+		internal const string SendChat = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F2 48 8B F9 45 84 C9";
+		internal const string SanitiseString = "E8 ?? ?? ?? ?? EB 0A 48 8D 4C 24 ?? E8 ?? ?? ?? ?? 48 8D AE";
+	}
 
-        // Next we need to process the chatbox delgate, meaning we need to get the pointer for the uimodule, message, unused information and byte data
-        private delegate void ProcessChatBoxDelegate(IntPtr uiModule, IntPtr message, IntPtr unused, byte a4);
 
-        // Now we need to get the pointer for the uimodule, message, unused information and byte data from above
-        private ProcessChatBoxDelegate? ProcessChatBox { get; }
+	private delegate void ProcessChatBoxDelegate(nint uiModule, nint message, nint unused, byte a4);
+	private readonly unsafe delegate* unmanaged<Utf8String*, int, nint, void> sanitiseString = null!;
 
-        /// <summary> By being an internal constructor, it means that this class can only be accessed by the same assembly. </summary>
-        internal RealChatInteraction(ISigScanner scanner) {
-            // Now we need to scan for the signature of the chatbox, to see if it is valid
-            if (scanner.TryScanText(Signatures.SendChat, out var processChatBoxPtr)) {
-                // If it is valid, we need to get the delegate for the chatbox as a function pointer.
-                this.ProcessChatBox = Marshal.GetDelegateForFunctionPointer<ProcessChatBoxDelegate>(processChatBoxPtr);
-            }
-        }
+	private ProcessChatBoxDelegate? processChatBox { get; }
 
-        /// <summary>
-        /// <para>Send a given message to the chat box. <b>This can send chat to the server.</b></para>
-        /// <para>
-        /// This method will throw exceptions when a chat message is longer than it should be or when it is empty,
-        /// and it will also filter out any symbols that normally should not be sent. Somewhat "Sanatizing" the message.
-        /// However, it can still make mistakes, so use with caution.
-        /// </para>
-        /// </summary>
-        /// <param name="message"></param>
-        /// <exception cref="ArgumentException">If <paramref name="message"/> is empty or longer than 500 bytes in UTF-8.</exception>
-        /// <exception cref="InvalidOperationException">If the signature for this function could not be found</exception>
-        public void SendMessage(string message) {
-            // Get the number of bytes our message contains.
-            var bytes = Encoding.UTF8.GetBytes(message);
+	internal unsafe ServerChat(ISigScanner scanner) {
+		if (scanner.TryScanText(Signatures.SendChat, out nint processChatBoxPtr)) {
+			this.processChatBox = Marshal.GetDelegateForFunctionPointer<ProcessChatBoxDelegate>(processChatBoxPtr);
+			DalamudApi.Log?.Information("Found signature for chat sending");
+		}
+		else {
+			DalamudApi.Log?.Error("Can't find signature for chat sending, functionality will be unavailable!");
+		}
 
-            // First, let us be sure that our message is not empty
-            if (bytes.Length == 0) { // If it is, don't send the message and throw a message empty exception instead.
-                throw new ArgumentException("message is empty", nameof(message));
-            }
+		if (scanner.TryScanText(Signatures.SanitiseString, out nint sanitisePtr)) {
+			this.sanitiseString = (delegate* unmanaged<Utf8String*, int, nint, void>)sanitisePtr;
+			DalamudApi.Log?.Information("Found signature for chat sanitisation");
+		}
+		else {
+			DalamudApi.Log?.Error("Can't find signature for chat sanitisation, functionality will be unavailable!");
+		}
+	}
 
-            // Next, let us be sure that our message is not larger than the ammount of bytes a message should be allowed to send
-            if (bytes.Length > 500) { // If it is, dont send the message and throw a message too long exception instead.
-                throw new ArgumentException($"message is longer than 500 bytes, and is {bytes.Length}", nameof(message));
-            }
+	public unsafe void SendMessageUnsafe(byte[] message) {
+		if (this.processChatBox == null)
+			throw new InvalidOperationException("Could not find signature for chat sending");
 
-            // Finally, we want to be sure that our processchatbox sucessfully got the delegate for our function pointer.
-            if (this.ProcessChatBox == null) {
-                throw new InvalidOperationException("Could not find signature for chat sending");
-            }
-            //GagSpeak.GSLogger.LogType.Debug($"[RealChatInteraction]: Sending message of byte length: {bytes.Length}");
-            // Assuming it meets the correct conditions, we can begin to obtain the UI module pointer for the chatbox within the framework instance
-            this.SendMessageUnsafe(bytes);
-        }
+		UIModule* uiModule = Framework.Instance()->GetUIModule();
+		if (uiModule is null)
+			throw new InvalidOperationException("Could not access UIModule instance", new NullReferenceException("Framework instance returned null for UIModule"));
 
-        /// <summary>
-        /// <para>Send a given message to the chat box. <b>This can send chat to the server.</b></para>
-        /// <para>
-        /// This method does not throw any exceptions, and should be handled with fucking caution,
-        /// it is primarily used to initialize the actual sending of chat to the server, hince the
-        /// unsafe method, and can not be merged with the sendMessage function.
-        /// </para>
-        /// </summary>
-        public unsafe void SendMessageUnsafe(byte[] message) {
-            // To be extra safe, double check our processchatbox has its delegate correctly.
-            if (this.ProcessChatBox == null) {
-                throw new InvalidOperationException("Could not find signature for chat sending");
-            }
-            // Assuming it meets the correct conditions, we can begin to obtain the UI module pointer for the chatbox within the framework instance
-            var uiModule = (IntPtr) Framework.Instance()->UIModule;
-                
-            // create a payload for our chat message
-            using var payload = new ChatPayload(message);
-            /// MARSHAL -provides a collection of methods for allocating unmanaged memory, copying unmanaged memory blocks, 
-            ///   and converting managed to unmanaged types & miscellaneous methods used when interacting with unmanaged code.
-            /// AllocHGlobal - Allocates memory from the unmanaged memory of the process by using the specified number of bytes.
-            /// Returns: A pointer to the newly allocated memory. This memory must be released using the Marshal.FreeHGlobal(nint) method.
-            // Marshal the payload to a pointer in memory
-            var mem1 = Marshal.AllocHGlobal(400);
-            // StructureToPtr - Marshals data from a managed object to an unmanaged block of memory.
-            Marshal.StructureToPtr(payload, mem1, false);
-            // Finally, we can send our message to the chatbox
-            this.ProcessChatBox(uiModule, mem1, IntPtr.Zero, 0);
-            // and dont forget to free back up our memory
-            Marshal.FreeHGlobal(mem1);
-        }
+		using ChatPayload payload = new(message);
+		nint mem1 = Marshal.AllocHGlobal(400);
+		Marshal.StructureToPtr(payload, mem1, false);
 
-        [StructLayout(LayoutKind.Explicit)] // Lets us control the physical layout of the data fields of a class or structure in memory.
-        [SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable")] // We need to keep the pointer alive
+		this.processChatBox((nint)uiModule, mem1, nint.Zero, 0);
 
-        // the chatpayload struct format, includes the text pointer, text length, and two unknowns, we must set these to the appropriate field offsets to ensure the correct data is sent
-        private readonly struct ChatPayload : IDisposable {
-            [FieldOffset(0)]
-            private readonly IntPtr textPtr;
+		Marshal.FreeHGlobal(mem1);
+	}
 
-            [FieldOffset(16)]
-            private readonly ulong textLen;
+	public void SendMessage(string message) {
+		byte[] bytes = Encoding.UTF8.GetBytes(message);
+		if (bytes.Length == 0)
+			throw new ArgumentException("message is empty", nameof(message));
 
-            [FieldOffset(8)]
-            private readonly ulong unk1;
+		if (bytes.Length > 500)
+			throw new ArgumentException("message is longer than 500 bytes", nameof(message));
 
-            [FieldOffset(24)]
-            private readonly ulong unk2;
+		if (message.Length != this.SanitiseText(message).Length)
+			throw new ArgumentException("message contained invalid characters", nameof(message));
 
-            // The constructor for the chatpayload struct, we need to allocate memory for the string bytes, and then copy the string bytes to the text pointer
-            internal ChatPayload(byte[] stringBytes) {
-                // AllocHGlobal - Allocates memory from the unmanaged memory of the process by using the specified number of bytes.
-                this.textPtr = Marshal.AllocHGlobal(stringBytes.Length + 30);
-                // Copy - Copies data from a managed array to an unmanaged memory pointer, or from an unmanaged memory pointer to a managed array.
-                Marshal.Copy(stringBytes, 0, this.textPtr, stringBytes.Length);
-                // WriteByte - Writes a single byte value to unmanaged memory.
-                Marshal.WriteByte(this.textPtr + stringBytes.Length, 0);
+		this.SendMessageUnsafe(bytes);
+	}
 
-                // Set the text length to the length of the string bytes + 1
-                this.textLen = (ulong) (stringBytes.Length + 1);
-                // Set the unknowns to 64 and 0, as they should be for chat message sending.
-                this.unk1 = 64;
-                this.unk2 = 0;
-            }
+	public unsafe string SanitiseText(string text) {
+		if (this.sanitiseString == null)
+			throw new InvalidOperationException("Could not find signature for chat sanitisation");
 
-            // when we dispose of our chat payload, we must be sure to free the memory we allowed in this.textPtr
-            public void Dispose() {
-                Marshal.FreeHGlobal(this.textPtr);
-            }
-        }
-    }
+		Utf8String* uText = Utf8String.FromString(text);
+
+		this.sanitiseString(uText, 0x27F, nint.Zero);
+		string sanitised = uText->ToString();
+
+		uText->Dtor();
+		IMemorySpace.Free(uText);
+
+		return sanitised;
+	}
+
+
+
+	[StructLayout(LayoutKind.Explicit)]
+	private readonly struct ChatPayload: IDisposable {
+		[FieldOffset(0)]
+		private readonly nint textPtr;
+
+		[FieldOffset(16)]
+		private readonly ulong textLen;
+
+		[FieldOffset(8)]
+		private readonly ulong unk1;
+
+		[FieldOffset(24)]
+		private readonly ulong unk2;
+
+		internal ChatPayload(byte[] stringBytes) {
+			this.textPtr = Marshal.AllocHGlobal(stringBytes.Length + 30);
+			Marshal.Copy(stringBytes, 0, this.textPtr, stringBytes.Length);
+			Marshal.WriteByte(this.textPtr + stringBytes.Length, 0);
+
+			this.textLen = (ulong)(stringBytes.Length + 1);
+
+			this.unk1 = 64;
+			this.unk2 = 0;
+		}
+
+		public void Dispose() => Marshal.FreeHGlobal(this.textPtr);
+	}
+
+
+}

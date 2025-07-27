@@ -11,7 +11,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using Lumina.Excel;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Puppet.PuppetMaster;
 using Puppet.Windows;
 
@@ -25,7 +25,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private IDalamudPluginInterface PluginInterface { get; init; }
     private ICommandManager CommandManager { get; init; }
-    public RealChatInteraction RealChat { get; init; }
+    public ServerChat RealChat { get; init; }
 
     public Configuration Configuration { get; init; }
     public WindowSystem WindowSystem = new("Puppet");
@@ -58,7 +58,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += DrawUI;
         PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
-        RealChat = new RealChatInteraction(DalamudApi.SigScanner);
+        RealChat = new ServerChat(DalamudApi.SigScanner);
 
         DalamudApi.Chat.ChatMessage += ChatOnChatMessage;
 
@@ -78,9 +78,10 @@ public sealed class Plugin : IDalamudPlugin
         if (channel == null) return;
         if (Configuration.Trigger.IsNullOrEmpty()) return;
         if (!Configuration.ChannelsPuppeteer.Contains(channel)) return;
-
-        var from = ((PlayerPayload)sender.Payloads.Where(x => x.Type == PayloadType.Player)?.FirstOrDefault())
-            ?.DisplayedName;
+        var playerPayload = sender.Payloads.FirstOrDefault(x => x.Type == PayloadType.Player);
+        var from = playerPayload is null ? string.Empty : ((PlayerPayload)playerPayload).DisplayedName;
+        if (string.IsNullOrEmpty(from))
+            from = DalamudApi.ClientState.LocalPlayer?.Name + "\ue05d" + DalamudApi.ClientState.LocalPlayer?.HomeWorld.Value.Name.ExtractText();
 
         switch ((ConfigWindow.OpenTo)Configuration.Target)
         {
@@ -103,6 +104,8 @@ public sealed class Plugin : IDalamudPlugin
         var str = message.TextValue;
         if (!Regex.IsMatch(str, Configuration.Trigger)) return;
         str = Regex.Replace(str, Configuration.Trigger, "").Trim();
+
+        DalamudApi.Log.Debug($"Received message: {message.TextValue} from {sender.TextValue}.");
 
         var matched = false;
 

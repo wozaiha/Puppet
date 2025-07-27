@@ -26,7 +26,7 @@ public class ConfigWindow : Window, IDisposable
     private IGameObject? Target => DalamudApi.Targets.Target;
 
     public string? TargetName => Target is IPlayerCharacter character
-                                     ? $"{character?.Name.TextValue}\ue05d{character?.HomeWorld.GameData?.Name}"
+                                     ? $"{character?.Name.TextValue}\ue05d{character?.HomeWorld.Value.Name.ExtractText()}"
                                      : "";
 
     public ConfigWindow(Plugin plugin) : base(
